@@ -1,9 +1,23 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+// Safe access to environment variables in browser
+const getApiKey = () => {
+  try {
+    return (typeof process !== 'undefined' && process.env?.API_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 export const getSeatingAdvice = async (students: string[], currentLayout: string) => {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    return "API 키가 설정되지 않았습니다. 관리자에게 문의하세요.";
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
